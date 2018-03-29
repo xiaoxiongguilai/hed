@@ -36,6 +36,7 @@ if __name__ == '__main__':
     data_root = '../../data/FrontImages/'
     with open(data_root+'test.lst') as f:
         test_lst = f.readlines()
+        print test_lst
 
     caffe.set_mode_gpu()
     caffe.set_device(1)
@@ -43,14 +44,17 @@ if __name__ == '__main__':
     model_root = './'
     net = caffe.Net(model_root+'deploy.prototxt', model_root+'hed_pretrained_bsds.caffemodel', caffe.TEST)
 
-    test_lst = [data_root+x.strip() for x in test_lst]
-    im_lst = []
+    #test_lst = [data_root+x.strip() for x in test_lst]
+    #im_lst = []
     for i in range(0, len(test_lst)):
-        im = Image.open(test_lst[i])
+        img_path = data_root + test_lst[i].strip()
+        #im = Image.open(test_lst[i])
+        im = Image.open(img_path)
         (w, h) = im.size
-        res_h = 400
-        res_w = 400 * w / h
+        res_h = 800
+        res_w = 800 * w / h
         im = im.resize((res_w, res_h))
+        im.save("idcard_data/"+test_lst[i].strip())
         #print(im.size)
         in_ = np.array(im, dtype=np.float32)
         in_ = in_[:,:,::-1]
@@ -69,7 +73,7 @@ if __name__ == '__main__':
         if im.mode != 'L':
             im = im.convert('L')
         print im
-        im.save("your_fil2e.jpg")
+        im.save("idcard_gt/"+test_lst[i].strip())
         scale_lst = [fuse]
         #plot_single_scale(scale_lst, 30)
         print("forward ok")
