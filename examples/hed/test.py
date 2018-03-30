@@ -51,10 +51,16 @@ if __name__ == '__main__':
         #im = Image.open(test_lst[i])
         im = Image.open(img_path)
         (w, h) = im.size
-        res_h = 800
-        res_w = 800 * w / h
+        max_len = 800
+        if( w > h):
+            res_w = max_len
+            res_h = max_len * h / w
+        else:
+            res_h = max_len
+            res_w = max_len * w / h
+        print "w=",w," h=",h, " res_w=", res_w, " res_h", res_h
         im = im.resize((res_w, res_h))
-        im.save("idcard_data/"+test_lst[i].strip())
+        im.save("idcard_data/" + test_lst[i].strip())
         #print(im.size)
         in_ = np.array(im, dtype=np.float32)
         in_ = in_[:,:,::-1]
@@ -68,7 +74,7 @@ if __name__ == '__main__':
         out1 = net.blobs['sigmoid-dsn1'].data[0][0,:,:]
         fuse = net.blobs['sigmoid-fuse'].data[0][0,:,:]
         #print fuse
-        fuse = 255 - fuse * 255
+        fuse = fuse * 255
         im = Image.fromarray(fuse)
         if im.mode != 'L':
             im = im.convert('L')
