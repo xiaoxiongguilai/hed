@@ -5,8 +5,8 @@ import matplotlib.pyplot as plt
 import matplotlib.pylab as pylab
 import matplotlib.cm as cm
 import scipy.misc
-#import Image
-from PIL import Image
+#from PIL import Image
+import cv2
 import scipy.io
 import os
 
@@ -36,7 +36,6 @@ if __name__ == '__main__':
     data_root = '../../data/FrontImages/'
     with open(data_root+'test.lst') as f:
         test_lst = f.readlines()
-        print test_lst
 
     caffe.set_mode_gpu()
     caffe.set_device(1)
@@ -44,13 +43,13 @@ if __name__ == '__main__':
     model_root = './'
     net = caffe.Net(model_root+'deploy.prototxt', model_root+'hed_pretrained_bsds.caffemodel', caffe.TEST)
 
-    #test_lst = [data_root+x.strip() for x in test_lst]
-    #im_lst = []
     for i in range(0, len(test_lst)):
         img_path = data_root + test_lst[i].strip()
-        #im = Image.open(test_lst[i])
-        im = Image.open(img_path)
-        (w, h) = im.size
+        #im = Image.open(img_path)
+        im = cv2.imread(img_path, cv2.IMREAD_COLOR)
+        im = cv2.cvtColor(im, cv2.COLOR_BGR2RGB)
+        #(w, h) = im.size
+        (h, w) = im.shape[:2]
         max_len = 800
         if( w > h):
             res_w = max_len
@@ -58,9 +57,11 @@ if __name__ == '__main__':
         else:
             res_h = max_len
             res_w = max_len * w / h
-        print "w=",w," h=",h, " res_w=", res_w, " res_h", res_h
-        im = im.resize((res_w, res_h))
-        im.save("idcard_data/" + test_lst[i].strip())
+
+        #im = im.resize((res_w, res_h))
+        im = cv2.resize(im, (res_w, res_h), interpolation=cv2.INTER_LINEAR)
+        #im.save("idcard_data/" + test_lst[i].strip())
+        cv2.imwrite("idcard_data/" + test_lst[i].strip(), im)
         #print(im.size)
         in_ = np.array(im, dtype=np.float32)
         in_ = in_[:,:,::-1]
@@ -75,11 +76,12 @@ if __name__ == '__main__':
         fuse = net.blobs['sigmoid-fuse'].data[0][0,:,:]
         #print fuse
         fuse = fuse * 255
+        cv2.imwrite("idcard_gt/" + test_lst[i].strip(), fuse)
+        '''
         im = Image.fromarray(fuse)
         if im.mode != 'L':
             im = im.convert('L')
         print im
         im.save("idcard_gt/"+test_lst[i].strip())
-        scale_lst = [fuse]
-        #plot_single_scale(scale_lst, 30)
-        print("forward ok")
+        '''
+        print(i, test_lst[i]," forward ok")
