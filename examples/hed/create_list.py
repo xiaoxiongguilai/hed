@@ -2,11 +2,11 @@
 
 import os
 
-TAG ="2018_04_03"
+TAG ='2018_04_03'
 
 if __name__ == '__main__':
-    data_path = './' + TAG + '_idcard_data/'
-    gt_path =   './' + TAG + '_idcard_gt/'
+    data_path = 'idcard_data_' + TAG + '/'
+    gt_path = 'idcard_gt_' + TAG + '/'
     img_list = []
     files = os.listdir(data_path)
     for file in files:
@@ -14,7 +14,7 @@ if __name__ == '__main__':
             img_list.append(file)
     print("Total ",len(img_list)," images")
 
-    of = open(TAG + "_train_pair.lst","w+")
+    of = open("train_pair_" + TAG  + ".lst", "w+")
     for img_name in img_list:
         of.write(data_path + img_name + " " + gt_path + img_name + "\n")
     of.close()
